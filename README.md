@@ -1,8 +1,6 @@
-# Ex-4-LETTER-FOLLOWED-BY-ANY-NUMBER-OF-LETTERS-OR-DIGITS-USING-YACC-USING-YACC
+# Ex-4-LETTER-FOLLOWED-BY-ANY-NUMBER-OF-LETTERS-OR-DIGITS-USING-YACC
 RECOGNITION OF A VALID VARIABLE WHICH STARTS WITH A LETTER FOLLOWED BY ANY NUMBER OF LETTERS OR DIGITS USING YACC
-# NAME:Vamsi Krishna G
-# REG NO:212223220120
-# Date:21-10-2024
+# Date:29/09/2025
 # Aim:
 To write a YACC program to recognize a valid variable which starts with a letter followed by any number of letters or digits.
 # ALGORITHM
@@ -15,58 +13,61 @@ To write a YACC program to recognize a valid variable which starts with a letter
 7.	Compile these with the C compiler as gcc lex.yy.c y.tab.c
 8.	Enter a statement as input and the valid variables are identified as output.
 # PROGRAM
+## exp.l
 ```
-Program name:ex4.l
 %{
-/* This LEX program returns the tokens for the Expression */
-#include"y.tab.h"
+#include "y.tab.h"
+#include <string.h>
 %}
+
 %%
-"int" {return INT;}
-"float" {return FLOAT;}
-"double" {return DOUBLE;}
-[a-zA-Z]*[0-9]* {printf("\nIdentifier is %s",yytext);
-return ID;
-}
-. return yytext[0];
-\n return 0;
+[a-zA-Z][a-zA-Z0-9]*    { yylval.str = strdup(yytext); return IDENTIFIER; }
+\n                      { return '\n'; }
+.                       { return yytext[0]; }
 %%
-int yywrap()
-{
-return 1;
+
+int yywrap() {
+    return 1;
 }
-Program name:ex4.y
+```
+## exp.y
+```
 %{
-#include<stdio.h>
-/* This YACC program is for recognising the Expression*/
- %}
-%token ID INT FLOAT DOUBLE
-%%
-D: T L
-;
-L: L,ID
-| ID
-;
-T: INT
-| FLOAT
-| DOUBLE
-;
-%%
-extern FILE*yyin;
-main()
-{
-do
-{
-yyparse();
-}while(!feof(yyin));
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+extern int yylex();
+void yyerror(const char *msg);
+
+%}
+
+%union {
+    char *str;
 }
-yyerror(char*s)
-{
+
+%token <str> IDENTIFIER
+
+%%
+start:
+    IDENTIFIER '\n' {
+        printf("Valid variable: %s\n", $1);
+        free($1);  // clean up strdup memory
+    }
+    ;
+%%
+
+int main() {
+    printf("Enter a variable name:\n");
+    return yyparse();
+}
+
+void yyerror(const char *msg) {
+    printf("Invalid variable name\n");
 }
 ```
 # Output
-![375297684-e96d9e10-5302-4a7f-b640-dd0d63148840](https://github.com/user-attachments/assets/c32640c0-ddc9-49f7-ae77-cba3b53faa2d)
-
+<img width="1018" height="567" alt="image" src="https://github.com/user-attachments/assets/1adc86ce-17d6-4a3c-8d5a-074fbf6bc91b" />
 
 # Result
 A YACC program to recognize a valid variable which starts with a letter followed by any number of letters or digits is executed successfully and the output is verified.
